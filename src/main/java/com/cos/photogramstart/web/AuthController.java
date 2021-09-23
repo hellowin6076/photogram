@@ -1,6 +1,7 @@
 package com.cos.photogramstart.web;
 
 import com.cos.photogramstart.domain.user.User;
+import com.cos.photogramstart.handler.ex.CustomValidationException;
 import com.cos.photogramstart.service.AuthService;
 import com.cos.photogramstart.web.dto.auth.SignupDto;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -47,14 +49,17 @@ public class AuthController {
                 System.out.println(error.getDefaultMessage());
                 System.out.println("=========================");
             }
+            throw new CustomValidationException("Validation Check Failed", errorMap);
+        }else {
+            log.info(signupDto.toString());
+            //User <- SignupDto
+            User user = signupDto.toEntity();
+            log.info(user.toString());
+            User userEntity =  authService.signup(user);
+            System.out.println(userEntity);
+            return "auth/signin";
         }
 
-        log.info(signupDto.toString());
-        //User <- SignupDto
-        User user = signupDto.toEntity();
-        log.info(user.toString());
-        User userEntity =  authService.signup(user);
-        System.out.println(userEntity);
-        return "auth/signin";
+
     }
 }
